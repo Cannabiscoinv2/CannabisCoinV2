@@ -177,6 +177,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    if (nHeight == Params().GetConsensus().nForkThree) {
+        int64_t nDevFee = 250000 * COIN;
+        CBitcoinAddress devAddress2("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
+        CScript devAddrPubKey = GetScriptForDestination(devAddress2.Get());
+        txCoinbase.vout.push_back(CTxOut(nDevFee, devAddrPubKey));
+        txCoinbase.vout[0].nValue -= devFee;
+    }
     pblock->vtx[0] = coinbaseTx;
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
