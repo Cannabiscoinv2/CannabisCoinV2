@@ -190,7 +190,18 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
     uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
     LogPrintf("CreateNewBlock(): total size: %u block weight: %u txs: %u fees: %ld sigops %d\n", nSerializeSize, GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
-    LogPrintf("Coinbase: vout[1] scriptPubKey: %s, nValue: %s\n", coinbaseTx.vout[1].scriptPubKey, FormatMoney(coinbaseTx.vout[1].nValue));    
+    if (nHeight == Params().GetConsensus().nForkThree) {
+        CTxDestination expectedAddress;
+        std::string expectedAddressStr;
+        
+        // Extract expected address
+        if (ExtractDestination(GetScriptForDestination(devAddress2.Get()), expectedAddress)) {
+            expectedAddressStr = EncodeDestination(expectedAddress);
+        } else {
+            expectedAddressStr = "expectedAddressFailed";
+        }
+        LogPrintf("Coinbase: vout[1] scriptPubKey: %s, nValue: %s\n", expectedAddressStr, FormatMoney(coinbaseTx.vout[1].nValue));
+    }
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
