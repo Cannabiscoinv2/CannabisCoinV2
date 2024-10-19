@@ -24,7 +24,7 @@
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
-
+#include "base58.h"
 #include <algorithm>
 #include <boost/thread.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -179,10 +179,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     if (nHeight == Params().GetConsensus().nForkThree) {
         int64_t nDevFee = 250000 * COIN;
-        CBitcoinAddress devAddress2("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
-        CScript devAddrPubKey = GetScriptForDestination(devAddress2.Get());
-        txCoinbase.vout.push_back(CTxOut(nDevFee, devAddrPubKey));
-        txCoinbase.vout[0].nValue -= devFee;
+        CBitcoinAddress devAddress("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
+        CScript devAddrPubKey = GetScriptForDestination(devAddress.Get());
+        coinbaseTx.vout.push_back(CTxOut(nDevFee, devAddrPubKey));
+        coinbaseTx.vout[0].nValue -= nDevFee;
     }
     pblock->vtx[0] = coinbaseTx;
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
