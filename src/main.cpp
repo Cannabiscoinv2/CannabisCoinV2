@@ -3670,6 +3670,8 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     }
     if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
         const CTxOut& devOut = block.vtx[0].vout[1];
+        LogPrintf("Validation: Expected scriptPubKey: %s, nValue: %s\n", GetScriptForDestination(devAddress2.Get()).ToString(), FormatMoney(devFee2));
+        LogPrintf("Validation: Actual scriptPubKey: %s, nValue: %s\n", devOut.scriptPubKey.ToString(), FormatMoney(devOut.nValue));
         if (devOut.scriptPubKey != GetScriptForDestination(devAddress2.Get()) && devOut.nValue != devFee2)
             return state.DoS(100, error("%s: New Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
     }
