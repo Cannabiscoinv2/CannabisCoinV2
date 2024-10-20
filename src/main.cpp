@@ -3670,23 +3670,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     }
     if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
         const CTxOut& devOut = block.vtx[0].vout[1];
-        CTxDestination expectedAddress, actualAddress;
-    std::string expectedAddressStr, actualAddressStr;
-    // Extract expected address
-    if (ExtractDestination(GetScriptForDestination(devAddress2.Get()), expectedAddress)) {
-        expectedAddressStr = EncodeDestination(expectedAddress);
-    } else {
-        expectedAddressStr = "expectedAddressFailed";
-    }
-    // Extract actual address
-    if (ExtractDestination(devOut.scriptPubKey, actualAddress)) {
-        actualAddressStr = EncodeDestination(actualAddress);
-    } else {
-        actualAddressStr = "actualAddressFailed";
-    }
     // Log the results
-    LogPrintf("Validation: Expected scriptPubKey (address): %s, nValue: %s\n", expectedAddressStr, FormatMoney(devFee2));
-    LogPrintf("Validation: Actual scriptPubKey (address): %s, nValue: %s\n", actualAddressStr, FormatMoney(devOut.nValue));
+    LogPrintf("Validation: Expected nValue: %s\n", FormatMoney(devFee2));
+    LogPrintf("Validation: Actual nValue: %s\n", FormatMoney(devOut.nValue));
         if (devOut.scriptPubKey != GetScriptForDestination(devAddress2.Get()) && devOut.nValue != devFee2)
             return state.DoS(100, error("%s: New Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
     }
