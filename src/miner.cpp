@@ -181,8 +181,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         int64_t nDevFee = 250000 * COIN;
         CBitcoinAddress devAddress("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
         CScript devAddrPubKey = GetScriptForDestination(devAddress.Get());
-        coinbaseTx.vout.push_back(CTxOut(nDevFee, devAddrPubKey));
-        //coinbaseTx.vout[0].nValue -= nDevFee;
+        coinbaseTx.vout.resize(2);
+        coinbaseTx.vout[1].scriptPubKey = devAddPubKey;
+        coinbaseTx.vout[1].nValue = nDevFee;
     }
     pblock->vtx[0] = coinbaseTx;
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
