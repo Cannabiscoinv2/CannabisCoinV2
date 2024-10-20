@@ -61,7 +61,7 @@ unsigned int GetNextWorkRequired2(const CBlockIndex* pindexLast, const CBlockHea
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
-    if (pindexLast->nHeight >= params.nForkThree)
+    if (pindexLast->nHeight >= params.nForkFour)
         GetNextWorkRequired2(pindexLast, pblock, params);
     
     CBigNum bnProofOfWorkLimit;

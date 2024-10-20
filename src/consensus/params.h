@@ -65,6 +65,7 @@ struct Params {
     int nForkOne;
     int nForkTwo;
     int nForkThree;
+    int nForkFour;
 };
 } // namespace Consensus
 
