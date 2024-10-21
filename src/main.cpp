@@ -3669,12 +3669,28 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             return state.DoS(100, error("%s: Bittrex-Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
     }
     if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
-        const CTxOut& devOut = block.vtx[0].vout[1];
-    // Log the results
-    LogPrintf("Validation: Expected nValue: %s\n", FormatMoney(devFee2));
-    LogPrintf("Validation: Actual nValue: %s\n", FormatMoney(devOut.nValue));
-        if (devOut.scriptPubKey != GetScriptForDestination(devAddress2.Get()) && devOut.nValue != devFee2)
+        int64_t devFee2 = 250000 * COIN;
+        CBitcoinAddress devAddress2("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
+        CScript expectedScriptPubKey = GetScriptForDestination(devAddress2.Get());
+
+        bool foundDevFeeTx = false;
+
+        for (const auto& tx : block.vtx) {
+            for (const auto& out : tx->vout) {
+                // Check if the transaction matches the expected dev fee output
+                if (out.scriptPubKey == expectedScriptPubKey && out.nValue == devFee2) {
+                    foundDevFeeTx = true;            
+                    break; // Dev fee transaction found, no need to continue
+                }
+            }
+            if (foundDevFeeTx) {
+                break;
+            }
+        }
+        // If the dev fee transaction is missing, return an error
+        if (!foundDevFeeTx) {
             return state.DoS(100, error("%s: New Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
+        }
     }
 
     return true;
