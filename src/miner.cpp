@@ -6,6 +6,7 @@
 #include "miner.h"
 
 #include "amount.h"
+#include "base58.h"
 #include "chain.h"
 #include "chainparams.h"
 #include "coins.h"
@@ -24,7 +25,7 @@
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
-#include "base58.h"
+
 #include <algorithm>
 #include <boost/thread.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -177,23 +178,30 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+
     if (nHeight == Params().GetConsensus().nForkThree) {
+        CMutableTransaction devFeeTx;
+        devFeeTx.vin.resize(1);
+        devFeeTx.vin[0].prevout.SetNull();
+        
+        // Set the output to the dev address
         int64_t nDevFee = 250000 * COIN;
         CBitcoinAddress devAddress("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
         CScript devAddrPubKey = GetScriptForDestination(devAddress.Get());
-        coinbaseTx.vout.resize(2);
-        coinbaseTx.vout[1].scriptPubKey = devAddrPubKey;
-        coinbaseTx.vout[1].nValue = nDevFee;
+        devFeeTx.vout.resize(1);
+        devFeeTx.vout[0].scriptPubKey = devAddrPubKey;
+        devFeeTx.vout[0].nValue = nDevFee;
+
+        // Add dev fee transaction to the block
+        pblock->vtx.push_back(devFeeTx);
     }
+        
     pblock->vtx[0] = coinbaseTx;
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
 
     uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
     LogPrintf("CreateNewBlock(): total size: %u block weight: %u txs: %u fees: %ld sigops %d\n", nSerializeSize, GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
-    if (nHeight == Params().GetConsensus().nForkThree) {
-        LogPrintf("Coinbase: nValue: %s\n", FormatMoney(coinbaseTx.vout[1].nValue));
-    }
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
