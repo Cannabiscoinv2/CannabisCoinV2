@@ -1091,14 +1091,14 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
 
 bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 {
-if (chainActive.Height() >= Params().GetConsensus().nForkThree) {
-	for (const auto& txin : tx.vin) {
-       if (areBannedInputs(txin.prevout.hash, txin.prevout.n)) {
-           return state.DoS(10, error("CheckTransaction() : old dev fund movement"), 
+    if (chainActive.Height() >= Params().GetConsensus().nForkThree) {
+        for (const auto& txin : tx.vin) {
+            if (areBannedInputs(txin.prevout.hash, txin.prevout.n)) {
+                return state.DoS(10, error("CheckTransaction() : old dev fund movement"), 
                             REJECT_INVALID, "bad-txns-vin-empty");
+            }
         }
     }
-}
     // Basic checks that don't depend on any context
     if (tx.vin.empty())
         return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
@@ -1771,6 +1771,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
 bool IsInitialBlockDownload()
 {
+    return false;
     const CChainParams& chainParams = Params();
 
     // Once this function has returned false, it must remain false.
@@ -2389,6 +2390,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             view.SetBestBlock(pindex->GetBlockHash());
         return true;
     }
+    if (pindex->nHeight == Params().GetConsensus().nForkThree)
+	return true;
 
     bool fScriptChecks = true;
     if (fCheckpointsEnabled) {

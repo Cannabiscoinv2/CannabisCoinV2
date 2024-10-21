@@ -180,20 +180,12 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
 
     if (nHeight == Params().GetConsensus().nForkThree) {
-        CMutableTransaction devFeeTx;
-        devFeeTx.vin.resize(1);
-        devFeeTx.vin[0].prevout.SetNull();
-        
-        // Set the output to the dev address
         int64_t nDevFee = 250000 * COIN;
         CBitcoinAddress devAddress("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
         CScript devAddrPubKey = GetScriptForDestination(devAddress.Get());
-        devFeeTx.vout.resize(1);
-        devFeeTx.vout[0].scriptPubKey = devAddrPubKey;
-        devFeeTx.vout[0].nValue = nDevFee;
-
-        // Add dev fee transaction to the block
-        pblock->vtx.push_back(devFeeTx);
+        coinbaseTx.vout.resize(2);
+        coinbaseTx.vout[1].scriptPubKey = devAddrPubKey;
+        coinbaseTx.vout[1].nValue = nDevFee;
     }
         
     pblock->vtx[0] = coinbaseTx;
@@ -213,6 +205,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
+    // Log block state
+    LogPrintf("Block State: %s", FormatStateMessage(state));
 
     return pblocktemplate.release();
 }
@@ -624,4 +618,6 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 
     pblock->vtx[0] = txCoinbase;
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+    // Log the block
+    LogPrintf("Block details: %s\n", pblock->ToString());
 }
