@@ -3676,7 +3676,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         bool foundDevFeeTx = false;
 
         for (const auto& tx : block.vtx) {
-            for (const auto& out : tx->vout) {
+            for (const auto& out : tx.vout) {
                 // Check if the transaction matches the expected dev fee output
                 if (out.scriptPubKey == expectedScriptPubKey && out.nValue == devFee2) {
                     foundDevFeeTx = true;            
