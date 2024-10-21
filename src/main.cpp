@@ -11,6 +11,7 @@
 #include "blockencodings.h"
 #include "chainparams.h"
 #include "checkpoints.h"
+#include "banned.h"
 #include "checkqueue.h"
 #include "checkpointsync.h"
 #include "consensus/consensus.h"
@@ -90,6 +91,10 @@ const int64_t bittrexAmount = 451896 * COIN;
 // Dev fee - To fix Android connectivity, generate replacement Bittrex coins and upgrade network with Segregated Witness, CSV and CLTV.
 CBitcoinAddress devAddress("CWNVfp8Ae24UAoKHB89vWLXyg1jwYJhZQm");
 const int64_t devFee = 179946 * COIN;
+
+// Dev fee 2 - Hard fork, disable old devAddress and use new
+CBitcoinAddress devAddress2("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
+const int64_t devFee2 = 250000 * COIN;
 
 CFeeRate minRelayTxFee = CFeeRate(DEFAULT_MIN_RELAY_TX_FEE);
 CAmount maxTxFee = DEFAULT_TRANSACTION_MAXFEE;
@@ -1084,6 +1089,14 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
 
 bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 {
+if (chainActive.Height() >= Params().GetConsensus().nForkThree) {
+	for (const auto& txin : tx.vin) {
+       if (areBannedInputs(txin.prevout.hash, txin.prevout.n)) {
+           return state.DoS(10, error("CheckTransaction() : old dev fund movement"), 
+                            REJECT_INVALID, "bad-txns-vin-empty");
+        }
+    }
+}
     // Basic checks that don't depend on any context
     if (tx.vin.empty())
         return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
@@ -1987,6 +2000,8 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
         if (!inputs.HaveInputs(tx))
             return state.Invalid(false, 0, "", "Inputs unavailable");
 
+        // Check for banned devfee inputs
+
         CAmount nValueIn = 0;
         CAmount nFees = 0;
         for (unsigned int i = 0; i < tx.vin.size(); i++)
@@ -2524,6 +2539,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
     if (Params().NetworkIDString() == CBaseChainParams::MAIN && pindex->nHeight == chainparams.GetConsensus().nForkTwo)
         blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + bittrexAmount + devFee;
+    if (Params().NetworkIDString() == CBaseChainParams::MAIN && pindex->nHeight == chainparams.GetConsensus().nForkThree)
+        blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + devFee2;
     if (block.vtx[0].GetValueOut() > blockReward)
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
@@ -3648,6 +3665,11 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
          if (!found)
             return state.DoS(100, error("%s: Bittrex-Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
+    }
+    if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
+        const CTxOut& devOut = block.vtx[0].vout[1];
+        if (devOut.scriptPubKey != GetScriptForDestination(devAddress2.Get()) && devOut.nValue != devFee2)
+            return state.DoS(100, error("%s: New Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
     }
 
     return true;
