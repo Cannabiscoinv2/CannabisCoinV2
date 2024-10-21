@@ -3668,7 +3668,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
          if (!found)
             return state.DoS(100, error("%s: Bittrex-Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
     }
-    if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
+    if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree + 1) {
         const CTxOut& devOut = block.vtx[0].vout[1];
         if (devOut.scriptPubKey != GetScriptForDestination(devAddress2.Get()) && devOut.nValue != devFee2)
             return state.DoS(100, error("%s: New Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
