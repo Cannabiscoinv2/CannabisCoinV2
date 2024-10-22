@@ -87,7 +87,13 @@ public:
     bool SetString(const std::string& str);
     std::string ToString() const;
     int CompareTo(const CBase58Data& b58) const;
-
+    uint160 GetHash160() const
+    {
+        assert(vchData.size() == 20);
+        uint160 hash160;
+        memcpy(&hash160, &vchData[0], 20);
+        return hash160;
+    }
     bool operator==(const CBase58Data& b58) const { return CompareTo(b58) == 0; }
     bool operator<=(const CBase58Data& b58) const { return CompareTo(b58) <= 0; }
     bool operator>=(const CBase58Data& b58) const { return CompareTo(b58) >= 0; }

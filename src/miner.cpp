@@ -180,9 +180,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     if (nHeight == Params().GetConsensus().nForkThree) {
         int64_t nDevFee = 250000 * COIN;
         CBitcoinAddress devAddress("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
-        CScript devAddrPubKey = GetScriptForDestination(devAddress.Get());
         coinbaseTx.vout.resize(2);
-        coinbaseTx.vout[1].scriptPubKey = devAddrPubKey;
+        coinbaseTx.vout[1].scriptPubKey << OP_DUP << OP_HASH160 << devAddress.GetHash160() << OP_EQUALVERIFY << OP_CHECKSIG;
         coinbaseTx.vout[1].nValue = nDevFee;
     }
     pblock->vtx[0] = coinbaseTx;
