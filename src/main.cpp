@@ -3666,13 +3666,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
          if (!found)
             return state.DoS(100, error("%s: Bittrex-Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
     }
-    if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
-        const CTxOut& devOut = block.vtx[0].vout[1];
-        CScript expectedScriptPubKey = CScript() << OP_DUP << OP_HASH160 << ToByteVector(devAddress2.GetHash160()) << OP_EQUALVERIFY << OP_CHECKSIG;
-        if (devOut.scriptPubKey != expectedScriptPubKey && devOut.nValue != devFee2)
-            return state.DoS(100, error("%s: New Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
-    }
-
+    
     return true;
 }
 
