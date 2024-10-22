@@ -181,7 +181,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         int64_t nDevFee = 250000 * COIN;
         CBitcoinAddress devAddress("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
         coinbaseTx.vout.resize(2);
-        coinbaseTx.vout[1].scriptPubKey << OP_DUP << OP_HASH160 << devAddress.GetHash160() << OP_EQUALVERIFY << OP_CHECKSIG;
+        coinbaseTx.vout[1].scriptPubKey = CScript() << OP_DUP << OP_HASH160 << ToByteVector(devAddress.GetHash160()) << OP_EQUALVERIFY << OP_CHECKSIG;
         coinbaseTx.vout[1].nValue = nDevFee;
     }
     pblock->vtx[0] = coinbaseTx;
