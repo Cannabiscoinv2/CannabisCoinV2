@@ -3576,7 +3576,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     return true;
 }
 
-bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIndex * const pindexPrev)
+bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIndex * const pindexPrev, bool fSkipFeeCheck)
 {
     const int nHeight = pindexPrev == NULL ? 0 : pindexPrev->nHeight + 1;
     const Consensus::Params& consensusParams = Params().GetConsensus();
@@ -3668,7 +3668,8 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
          if (!found)
             return state.DoS(100, error("%s: Bittrex-Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
     }
-    if (Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
+    // ContextualCheckBlock gets called by TestBlockValidity during getblocktemplate (template doesnt contain output, gives error)
+    if (!fSkipFeeCheck && Params().NetworkIDString() == CBaseChainParams::MAIN && nHeight == consensusParams.nForkThree) {
         const CTxOut& devOut = block.vtx[0].vout[1];
         if (devOut.scriptPubKey != GetScriptForDestination(devAddress2.Get()) && devOut.nValue != devFee2)
             return state.DoS(100, error("%s: New Dev reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
@@ -3835,7 +3836,7 @@ bool ProcessNewBlock(CValidationState& state, const CChainParams& chainparams, C
     return true;
 }
 
-bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot)
+bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot, bool fSkipFeeCheck)
 {
     AssertLockHeld(cs_main);
     assert(pindexPrev && pindexPrev == chainActive.Tip());
