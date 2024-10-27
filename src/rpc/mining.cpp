@@ -561,6 +561,14 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     }
     CBlock* pblock = &pblocktemplate->block; // pointer for convenience
     const Consensus::Params& consensusParams = Params().GetConsensus();
+    if (pindexPrev + 1 = consensusParams.nForkThree) {
+        CMutableTransaction coinbaseTx = pblock->vtx[0];
+        CAmount devReward = 250000 * COIN;
+        CBitcoinAddress devAddress("CTeKMjzvoSLLR5WBfVL6XEi9g4fRDSFWeS");
+        CScript scriptPubKeyDev = GetScriptForDestination(devAddress.Get());
+            coinbaseTx.vout.push_back(CTxOut(devReward, scriptPubKeyDev));
+        pblock->vtx[0] = CTransaction(coinbaseTx);
+    }
 
     // Update nTime
     UpdateTime(pblock, consensusParams, pindexPrev);
