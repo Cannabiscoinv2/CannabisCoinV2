@@ -1,4 +1,4 @@
-## Wallet Update to v0.14.2 (Mandatory Update)
+## Wallet Update to v0.14.3 (Mandatory Update)
 
 Due to the inactivity of the original developer since 2021, the community has taken the initiative to release this mandatory update to ensure the continued stability of the network.
 
@@ -15,7 +15,7 @@ We are committed to maintaining and evolving CannabisCoin for the benefit of all
 - **Seed Nodes**: 
   - New hardcoded seed nodes added to keep the chain running smoothly and more stable.
 - **Checkpoints**: 
-  - Checkpoints have been added from block 6,800,000 up to block 7,135,000 to prevent chain splits.
+  - Checkpoints have been added from block 6,800,000 up to block 7,175,778 to prevent chain splits.
 - **Protocol Enforcement**: 
   - Protocol 70020 will be enforced, rejecting outdated wallets and nodes starting from block 7,175,000.
 - **One-Time Developer Fee**: 
