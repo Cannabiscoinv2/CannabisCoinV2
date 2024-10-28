@@ -31,8 +31,6 @@
 
 using namespace std;
 
-extern CBitcoinAddress devAddress2;
-
 /**
  * Return average network hashes per second based on the last 'lookup' blocks,
  * or from the last difficulty change if 'lookup' is nonpositive.
@@ -696,19 +694,6 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
-
-    UniValue masternodeObj(UniValue::VOBJ);
-
-    CTxDestination address1;
-    ExtractDestination(GetScriptForDestination(devAddress2.Get()), address1);
-    CBitcoinAddress address2(address1);
-    masternodeObj.push_back(Pair("payee", devAddress2.ToString().c_str()));
-    masternodeObj.push_back(Pair("script", HexStr(GetScriptForDestination(devAddress2.Get()))));
-    masternodeObj.push_back(Pair("amount", 250000 * COIN));
-
-    result.push_back(Pair("masternode", masternodeObj));
-    result.push_back(Pair("masternode_payments_started", true));
-    result.push_back(Pair("masternode_payments_enforced", true));
 
     if (!pblocktemplate->vchCoinbaseCommitment.empty() && fSupportsSegwit) {
         result.push_back(Pair("default_witness_commitment", HexStr(pblocktemplate->vchCoinbaseCommitment.begin(), pblocktemplate->vchCoinbaseCommitment.end())));
