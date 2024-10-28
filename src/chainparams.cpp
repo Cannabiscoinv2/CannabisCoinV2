@@ -138,9 +138,17 @@ public:
             ( 7100000, uint256S("0x000005e775a9e21d833d08f766db79905705a91eab05c8718b945e4eee75761c"))
             ( 7150000, uint256S("0x0000001d4105a13df91c6d2c6a83e355fdb23a2c5c132e26b14bcf090507a610"))
             ( 7160000, uint256S("0x000000368d1652ec4594feaf13d7b10ecfa3832409d480aa23d2e0a405a9cfaa"))
-            ( 7161500, uint256S("0x00000bdc75aea2a17199f2586d19eef85e16c176b722624681b28a72c38b372c")),
-            1728730733, // * UNIX timestamp of last checkpoint block
-            8246282,   // * total number of transactions between genesis and last checkpoint
+            ( 7161500, uint256S("0x00000bdc75aea2a17199f2586d19eef85e16c176b722624681b28a72c38b372c"))
+            ( 7175000, uint256S("0x00000000000036774a3a99c10cfa326f40c3559cced5ab6b21721cc989952031")) //nForkThree
+            ( 7175001, uint256S("0x00000000002a62b64e2c6f9e649b3eb0e58046ffe3512c7a7b56fd9dfa33c350"))
+            ( 7161510, uint256S("0x0000000000417c8d8e6cbbff8bd6f144d15659baa277a279f5f73b3fff87fbb6"))
+            ( 7161590, uint256S("0x0000000002f73f9e3b2026dc20e9682903c4750134a9218189ccaa23e656887a"))
+            ( 7175770, uint256S("0x0000000000032f45dad002166aa82ede483c4d9d82d1ff80e70da77f167595ac"))
+            ( 7175778, uint256S("0x000000000001a4a5b9b47f78dcc91021f6ac702d3a8907322f1f950201a29158")),
+
+
+            1730129481, // * UNIX timestamp of last checkpoint block
+            8260663,   // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             3100.0     // * estimated number of transactions per day after checkpoint
         };
